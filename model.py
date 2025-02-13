@@ -8,10 +8,9 @@ from einops.layers.torch import Rearrange
 from timm.models.layers import trunc_normal_
 from timm.models.vision_transformer import Block
 
-def random_indexes(size : int):
-    forward_indexes = np.arange(size)
-    np.random.shuffle(forward_indexes)
-    backward_indexes = np.argsort(forward_indexes)
+def random_indexes(size: int):
+    forward_indexes = torch.randperm(size, device='cuda')
+    backward_indexes = torch.argsort(forward_indexes)
     return forward_indexes, backward_indexes
 
 def take_indexes(sequences, indexes):
@@ -27,8 +26,8 @@ class PatchShuffle(torch.nn.Module):
         remain_T = int(T * (1 - self.ratio))
 
         indexes = [random_indexes(T) for _ in range(B)]
-        forward_indexes = torch.as_tensor(np.stack([i[0] for i in indexes], axis=-1), dtype=torch.long).to(patches.device)
-        backward_indexes = torch.as_tensor(np.stack([i[1] for i in indexes], axis=-1), dtype=torch.long).to(patches.device)
+        forward_indexes = torch.stack([i[0] for i in indexes], dim=-1)
+        backward_indexes = torch.stack([i[1] for i in indexes], dim=-1)
 
         patches = take_indexes(patches, forward_indexes)
         patches = patches[:remain_T]
