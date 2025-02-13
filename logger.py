@@ -46,7 +46,7 @@ class Logger(metaclass=SingletonType):
         self._project_name = project_name
         self._experiment_name = experiment_name
         self._log_dir = Path(log_dir)
-        
+
         self._config = vars(config) or {}
         self._step = 0  # Reset step counter
 
@@ -78,7 +78,7 @@ class Logger(metaclass=SingletonType):
             tags=tags,
             group=tags[0] if tags else None,
         )
-        if True:
+        if wandb.run.sweep_id:
             def setup_for_sweep():
                 self._experiment_name = f"{experiment_name}-{wandb.run.sweep_id}-{wandb.run.id}"
                 self._log_dir = Path(log_dir) / self._experiment_name
@@ -91,8 +91,6 @@ class Logger(metaclass=SingletonType):
         if wandb.run.id:
             with open(wandb_id_path, "w") as f:
                 f.write(wandb.run.id)
-                
-        
 
         # Initialize TensorBoard
         self._tb_writer = SummaryWriter(log_dir=str(self._log_dir / "tensorboard"))
@@ -158,7 +156,7 @@ class Logger(metaclass=SingletonType):
                 json.dump(dict(wandb.run.summary), f, indent=2)
         except Exception as e:
             print(f"Failed to save wandb summary: {e}")
-        
+
         wandb.finish()
         if self._tb_writer:
             self._tb_writer.close()
@@ -173,14 +171,13 @@ class Logger(metaclass=SingletonType):
         self._json_log = []
         self._json_log_path = None
         self._step = 0
-        
 
     def get_current_step(self):
         return self._step
 
     def set_step(self, step: int):
         self._step = step
-    
+
     def print(self, msg: str):
         self.py_logger.info(msg)
 
