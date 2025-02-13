@@ -1,0 +1,1 @@
+In epoch 99, average validation loss is 0.39322831109166145, average validation acc is 0.8209960944950581.
