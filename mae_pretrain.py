@@ -11,6 +11,7 @@ torch.set_float32_matmul_precision("high")
 
 def main():
     args = get_args()
+    
     args.lr = args.base_learning_rate * args.batch_size / 256
     setup_seed(args.seed)
     logger = Logger()
@@ -56,6 +57,8 @@ def main():
         trainer.task_id += 1
 
     logger.finish()
+    
+
 
 
 if __name__ == "__main__":

@@ -2,3 +2,7 @@ __pycache__/
 data/
 logs/
 *.pt
+output
+output_dir
+pic
+wandb

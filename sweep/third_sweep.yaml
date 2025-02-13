@@ -1,0 +1,24 @@
+program: mae_pretrain.py
+
+name: third_sweep
+
+method: grid
+
+metric:
+  name: valid/average_accuracy
+  goal: maximize
+
+parameters:
+  reduction_factor:
+    values: [0.05, 0.1, 0.2]
+  seed:
+    min: 0
+    max: 5
+  max_device_batch_size:
+    values: [1024]
+  name:
+    values: ['small_scale_sweep']
+  output_dir:
+    values: ['output_dir/small_scale_sweep']
+  scheduler:
+    values: ['cosine' , 'infinite_cosine']

@@ -46,7 +46,6 @@ class Logger(metaclass=SingletonType):
         self._project_name = project_name
         self._experiment_name = experiment_name
         self._log_dir = Path(log_dir)
-        os.makedirs(self._log_dir, exist_ok=True)
         self._config = vars(config) or {}
         self._step = 0  # Reset step counter
 
@@ -63,7 +62,7 @@ class Logger(metaclass=SingletonType):
         if self._experiment_name == "tmp" or "no_wandb" in self._experiment_name:
             wandb_mode = "disabled"
         else:
-            wandb_mode = "offline"
+            wandb_mode = "online"
 
         # Split experiment name into tags
         tags = self._experiment_name.split("-") if self._experiment_name else []
@@ -73,11 +72,19 @@ class Logger(metaclass=SingletonType):
             config=self._config,
             mode=wandb_mode,
             dir=log_dir,
-            resume="must" if wandb_id else None,
+            resume="allow" if wandb_id else None,
             id=wandb_id,
             tags=tags,
             group=tags[0] if tags else None,
         )
+        if wandb.run.sweep_id:
+            def setup_for_sweep():
+                self._experiment_name = f"{experiment_name}-{wandb.run.sweep_id}-{wandb.run.id}"
+                self._log_dir = Path(log_dir) / self._experiment_name
+                wandb.run.name = self._experiment_name   
+            setup_for_sweep()
+            wandb_id_path = self._log_dir / "wandb_id.txt"
+        os.makedirs(self._log_dir, exist_ok=True)
 
         # Save the wandb ID for future resumption
         if wandb.run.id:
@@ -148,7 +155,6 @@ class Logger(metaclass=SingletonType):
                 json.dump(dict(wandb.run.summary), f, indent=2)
         except Exception as e:
             print(f"Failed to save wandb summary: {e}")
-        
         wandb.finish()
         if self._tb_writer:
             self._tb_writer.close()
@@ -163,14 +169,12 @@ class Logger(metaclass=SingletonType):
         self._json_log = []
         self._json_log_path = None
         self._step = 0
-        
 
     def get_current_step(self):
         return self._step
 
     def set_step(self, step: int):
         self._step = step
-    
     def print(self, msg: str):
         self.py_logger.info(msg)
 
