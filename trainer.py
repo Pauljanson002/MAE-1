@@ -22,7 +22,7 @@ class MAETrainer:
         self.optim = torch.optim.AdamW(
             self.model.parameters(),
             lr=self.args.lr,
-            betas=(0.9, 0.95),
+            betas=(self.args.beta1, self.args.beta2),
             weight_decay=self.args.weight_decay,
         )
         if self.args.scheduler == "cosine":

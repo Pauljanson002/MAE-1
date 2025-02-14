@@ -8,6 +8,8 @@ def get_args():
     parser.add_argument("--finetune_batch_size", type=int, default=128)
     parser.add_argument("--max_device_batch_size", type=int, default=512)
     parser.add_argument("--base_learning_rate", type=float, default=1.5e-4)
+    parser.add_argument("--beta1", type=float, default=0.9)
+    parser.add_argument("--beta2", type=float, default=0.95)
     parser.add_argument("--finetune_learning_rate", type=float, default=1e-3)
     parser.add_argument("--weight_decay", type=float, default=0.05)
     parser.add_argument("--mask_ratio", type=float, default=0.75)
@@ -25,6 +27,7 @@ def get_args():
     parser.add_argument("--cooldown_ratio", type=float, default=0.3, help="Cooldown ratio")
     parser.add_argument("--constant_lr_ratio", type=float, default=0.25, help="Constant lr ratio")
     parser.add_argument("--constant_ratio", type=float, default=0.8, help="Constant ratio")
+    parser.add_argument("--min_lr_ratio", type=float, default=0.01, help="Min lr ratio")
     parser.add_argument("--method", type=str, default="base", help="Method")
     parser.add_argument("--hpo", type=int, default=0, help="Hyperparameter optimization")
     

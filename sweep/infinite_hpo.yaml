@@ -1,0 +1,37 @@
+program: mae_pretrain.py
+
+name: infinite_hpo
+
+method: grid
+
+metric:
+  name: valid/average_accuracy
+  goal: maximize
+
+parameters:
+  base_learning_rate:
+    values: [7.5e-5, 1.5e-4, 3e-4]
+  min_lr_ratio:
+    values: [0.1, 0.01]
+  beta1:
+    values: [0.9, 0.95]
+  beta2:
+    values: [0.95, 0.99]
+  weight_decay:
+    values: [5e-2, 5e-3]
+  warmup_ratio:
+    values: [0.05]
+  cooldown_ratio:
+    values: [0.3 , 0.4, 0.5]
+  constant_lr_ratio:
+    values: [0.25, 0.5, 0.75]
+  constant_ratio:
+    values: [0.8]
+  name:
+    values: ['infinite_hpo']
+  output_dir:
+    values: ['output_dir/infinite_hpo']
+  scheduler:
+    values: ['infinite_cosine']
+  hpo:
+    values: [1]

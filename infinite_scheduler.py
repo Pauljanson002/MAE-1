@@ -50,7 +50,7 @@ def adjust_learning_rate_2(
         constant_ratio=args.constant_ratio,
         start_lr=args.lr,
         constant_lr=args.lr * args.constant_lr_ratio,
-        min_lr=args.lr * 0.01,
+        min_lr=args.lr * args.min_lr_ratio,
         decay_style=decay_style,
         timescale=10,
     )
@@ -150,7 +150,9 @@ def adjust_learning_rate(optimizer, epoch, args):
     if epoch < args.warmup_epoch:
         lr = args.lr * epoch / args.warmup_epoch
     else:
-        lr = args.lr * 0.01 + (args.lr - args.lr * 0.01) * 0.5 * (
+        lr = args.lr * args.min_lr_ratio + (
+            args.lr - args.lr * args.min_lr_ratio
+        ) * 0.5 * (
             1.0
             + math.cos(
                 math.pi
