@@ -225,7 +225,7 @@ def get_pretrain_dataloader(task_id,args):
         sampler = data.RandomSampler(pretrain_dataset)
 
     train_dataloader = torch.utils.data.DataLoader(
-        pretrain_dataset, load_batch_size, sampler=sampler
+        pretrain_dataset, load_batch_size, sampler=sampler, drop_last=True, prefetch_factor=50, num_workers=8, pin_memory=True
     )
 
 
