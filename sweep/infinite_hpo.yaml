@@ -1,5 +1,6 @@
 program: mae_pretrain.py
-
+entity: eb-lab
+project: mae-hpo
 name: infinite_hpo
 
 method: grid
