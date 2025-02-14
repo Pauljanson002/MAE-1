@@ -19,6 +19,7 @@ python mae_pretrain.py \
     --scheduler ${scheduler} \
     --reduction_factor ${reduction_factor} \
     --output_dir ${output_dir} \
-    --method=gdumb \
-    --total_epoch=5 \
+    --method=base \
+    --total_epoch=400 \
     --finetune_epoch=5 \
+    --hpo=1 \

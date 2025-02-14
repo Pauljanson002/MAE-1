@@ -38,7 +38,6 @@ def main():
     for task_id in range(args.num_tasks):
         # Pretrain
         if task_id > 0:
-            trainer.reset_optimizer()
             if args.scheduler != "cosine":
                 trainer.load_annealed_model(task_id=task_id - 1)
         trainer.unfreeze_model()
@@ -50,8 +49,7 @@ def main():
             if epoch % 50 == 0 or epoch == args.total_epoch - 1:
                 trainer.save_model(epoch=epoch,task_id=task_id)
 
-            if args.scheduler != "cosine" and epoch == math.floor(args.total_epoch * args.constant_ratio):
-                trainer.save_annealed_model(task_id=task_id)
+
         
         if args.method in ["mas","lwf"]:
             trainer.after_training_exp(task_id,dataloader)
@@ -70,6 +68,10 @@ def main():
             trainer.after_finetuning()
 
         trainer.task_id += 1
+        
+        if args.hpo == 1 and task_id == 1:
+            logger.print("HPO mode, exiting after two tasks")
+            break
 
     logger.finish()
     

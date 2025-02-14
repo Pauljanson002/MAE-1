@@ -1,3 +1,4 @@
+import math
 import torch
 from tqdm import tqdm
 from trainer import MAETrainer
@@ -23,9 +24,10 @@ class LWFTrainer(MAETrainer):
         losses = []
         step_count = 0
         self.optim.zero_grad()
+        sample_factor = 1 if self.task_id == 0 else 2
+        pbar = tqdm(dataloader, total=len(dataloader) * sample_factor)
 
-        pbar = tqdm(dataloader,total=len(dataloader))
-        for img, _ in pbar:
+        for data_iter, (img, _) in enumerate(pbar):
             step_count += 1
 
             with torch.amp.autocast("cuda"):
@@ -44,10 +46,18 @@ class LWFTrainer(MAETrainer):
             losses.append(loss.item())
             pbar.set_description(f"Epoch {epoch}, Loss {loss.item()}")
 
-        if self.args.scheduler == "cosine":
-            self.lr_scheduler.step()
-        else:
-            self.lr_scheduler.step(epoch, current_task=self.task_id)
+            if self.args.scheduler == "cosine":
+                self.lr_scheduler.step(epoch +  data_iter / len(dataloader), current_task=self.task_id)
+            else:
+                self.lr_scheduler.step(
+                    data_iter,
+                    len(dataloader) * sample_factor,
+                    epoch,
+                    current_task=self.task_id,
+                )
+
+            if self.args.scheduler != "cosine" and epoch * len(dataloader) * sample_factor + data_iter == math.floor(self.args.total_epoch * len(dataloader) * sample_factor * self.args.constant_ratio):
+                self.save_annealed_model(task_id=self.task_id)
         avg_loss = sum(losses) / len(losses)
         logger.log({
             "train/loss": avg_loss,

@@ -26,6 +26,6 @@ def get_args():
     parser.add_argument("--constant_lr_ratio", type=float, default=0.25, help="Constant lr ratio")
     parser.add_argument("--constant_ratio", type=float, default=0.8, help="Constant ratio")
     parser.add_argument("--method", type=str, default="base", help="Method")
-    
+    parser.add_argument("--hpo", type=int, default=0, help="Hyperparameter optimization")
     
     return parser.parse_args()

@@ -6,22 +6,42 @@ import numpy as np
 import os
 
 
+class CosineScheduler:
+    def __init__(self, optimizer, args):
+        self.args = args
+        self.optimizer = optimizer
+
+    def step(self, epoch, current_task=0):
+        return adjust_learning_rate(self.optimizer, epoch, self.args)
+
 class InfiniteScheduler:
     def __init__(self, optimizer, args):
         self.args = args
         self.optimizer = optimizer
-        
-    def step(self, epoch, current_task=0, decay_style="cosine_cooldown_infinite"):
-        return adjust_learning_rate_2(self.optimizer, epoch, self.args, current_task, decay_style)
+
+    def step(self, iter_num, total_iters, epoch, current_task=0, decay_style="cosine_cooldown_infinite"):
+        return adjust_learning_rate_2(
+            self.optimizer,
+            iter_num,
+            total_iters,
+            epoch,
+            self.args,
+            current_task,
+            decay_style,
+        )
 
 def adjust_learning_rate_2(
     optimizer,
+    iter_num,
+    total_iters,
     epoch,
     args,
     current_task=0,
     decay_style="cosine_cooldown_infinite",
 ):
     lr = infinite_lr(
+        current_iter=iter_num,
+        total_iters=total_iters,
         current_epoch=epoch,
         total_epochs=args.total_epoch,
         current_task=current_task,
@@ -43,6 +63,8 @@ def adjust_learning_rate_2(
 
 
 def infinite_lr(
+    current_iter: int,
+    total_iters: int,
     current_epoch: int,
     total_epochs: int,
     current_task: int,
@@ -57,8 +79,8 @@ def infinite_lr(
 ) -> Tuple[float, int]:
 
     # Calculate total iterations across all epochs
-    total_iterations = total_epochs
-    actual_current_iter = current_epoch
+    total_iterations = total_iters * total_epochs
+    actual_current_iter = current_epoch * total_iters + current_iter
     # Calculate iterations for each phase
     if current_task == 0:
         warmup_iters = int(total_iterations * warmup_ratio)
@@ -120,4 +142,25 @@ def infinite_lr(
             exp_factor = math.log(constant_lr / min_lr) / decay_iters
             lr = constant_lr * math.exp(-exp_factor * decay_iter)
 
+    return lr
+
+
+def adjust_learning_rate(optimizer, epoch, args):
+    """Decay the learning rate with half-cycle cosine after warmup"""
+    if epoch < args.warmup_epoch:
+        lr = args.lr * epoch / args.warmup_epoch
+    else:
+        lr = args.lr * 0.01 + (args.lr - args.lr * 0.01) * 0.5 * (
+            1.0
+            + math.cos(
+                math.pi
+                * (epoch - args.warmup_epoch)
+                / (args.total_epoch - args.warmup_epoch)
+            )
+        )
+    for param_group in optimizer.param_groups:
+        if "lr_scale" in param_group:
+            param_group["lr"] = lr * param_group["lr_scale"]
+        else:
+            param_group["lr"] = lr
     return lr
