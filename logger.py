@@ -80,7 +80,7 @@ class Logger(metaclass=SingletonType):
         )
         if wandb.run.sweep_id:
             def setup_for_sweep():
-                self._experiment_name = f"{experiment_name}-{wandb.run.sweep_id}-{wandb.run.id}"
+                self._experiment_name = f"{experiment_name}-{wandb.run.id}"
                 self._log_dir = Path(log_dir) / self._experiment_name
                 wandb.run.name = self._experiment_name   
             setup_for_sweep()
