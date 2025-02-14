@@ -4,7 +4,7 @@ import torch
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 import os
-from infinite_scheduler import InfiniteScheduler
+from infinite_scheduler import InfiniteScheduler,CosineScheduler
 
 from metrics import calculate_per_task_accuracy
 from logger import Logger
@@ -19,19 +19,14 @@ class MAETrainer:
         self.scaler = torch.amp.GradScaler()
         self.writer = SummaryWriter(os.path.join("logs", "cifar10", "mae-pretrain"))
         self.task_id = 0
-        self.reset_optimizer()
-
-    def reset_optimizer(self):
         self.optim = torch.optim.AdamW(
             self.model.parameters(),
             lr=self.args.lr,
-            betas=(0.9, 0.95),
+            betas=(self.args.beta1, self.args.beta2),
             weight_decay=self.args.weight_decay,
         )
         if self.args.scheduler == "cosine":
-            self.lr_scheduler = torch.optim.lr_scheduler.LambdaLR(
-                self.optim, lr_lambda=self._lr_func, verbose=True
-            )
+            self.lr_scheduler = CosineScheduler(self.optim, self.args)
         else:
             self.lr_scheduler = InfiniteScheduler(self.optim, self.args)
 
@@ -51,9 +46,10 @@ class MAETrainer:
         losses = []
         step_count = 0
         self.optim.zero_grad()
+        sample_factor = 1 if self.task_id == 0 else 2
+        pbar = tqdm(dataloader, total=len(dataloader) * sample_factor)
 
-        pbar = tqdm(dataloader,total=len(dataloader))
-        for img, _ in pbar:
+        for data_iter, (img, _) in enumerate(pbar):
             step_count += 1
 
             with torch.amp.autocast("cuda"):
@@ -72,10 +68,18 @@ class MAETrainer:
             losses.append(loss.item())
             pbar.set_description(f"Epoch {epoch}, Loss {loss.item()}")
 
-        if self.args.scheduler == "cosine":
-            self.lr_scheduler.step()
-        else:
-            self.lr_scheduler.step(epoch, current_task=self.task_id)
+            if self.args.scheduler == "cosine":
+                self.lr_scheduler.step(epoch +  data_iter / len(dataloader), current_task=self.task_id)
+            else:
+                self.lr_scheduler.step(
+                    data_iter,
+                    len(dataloader) * sample_factor,
+                    epoch,
+                    current_task=self.task_id,
+                )
+
+            if self.args.scheduler != "cosine" and epoch * len(dataloader) * sample_factor + data_iter == math.floor(self.args.total_epoch * len(dataloader) * sample_factor * self.args.constant_ratio):
+                self.save_annealed_model(task_id=self.task_id)
         avg_loss = sum(losses) / len(losses)
         logger.log({
             "train/loss": avg_loss,
@@ -181,20 +185,18 @@ class MAETrainer:
         })
 
         return avg_loss
-    
-    
-    
+
     def start_evaluation(self,eval_dataloader,task_id):
         self.model.eval()
         self.finetune_model.eval()
-        
+
         with torch.no_grad(),torch.autocast("cuda"):
             predictions = []
             labels = []
             for img, label in eval_dataloader:
                 img = img.to(self.device)
                 label = label.to(self.device)
-                
+
                 logits = self.finetune_model(img)
                 loss = self.finetune_loss(logits,label)
                 predictions.append(logits.argmax(dim=-1))
@@ -204,10 +206,8 @@ class MAETrainer:
             acc = torch.mean((predictions == labels).float())
             logger.print(f"Validation accuracy: {acc.item()}")
             metric_dict = calculate_per_task_accuracy(predictions,labels,current_task=task_id)
-            
+
             metric_dict["valid/loss"] = loss.item()
             metric_dict["valid/acccuracy"] = acc.item()
             metric_dict["task_id"] = task_id
             logger.log(metric_dict)
-            
-                
