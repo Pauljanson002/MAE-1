@@ -46,7 +46,6 @@ class Logger(metaclass=SingletonType):
         self._project_name = project_name
         self._experiment_name = experiment_name
         self._log_dir = Path(log_dir)
-
         self._config = vars(config) or {}
         self._step = 0  # Reset step counter
 
@@ -156,7 +155,6 @@ class Logger(metaclass=SingletonType):
                 json.dump(dict(wandb.run.summary), f, indent=2)
         except Exception as e:
             print(f"Failed to save wandb summary: {e}")
-
         wandb.finish()
         if self._tb_writer:
             self._tb_writer.close()
@@ -177,7 +175,6 @@ class Logger(metaclass=SingletonType):
 
     def set_step(self, step: int):
         self._step = step
-
     def print(self, msg: str):
         self.py_logger.info(msg)
 

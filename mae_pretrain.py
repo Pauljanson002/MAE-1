@@ -5,6 +5,9 @@ from utils import setup_seed
 from config import get_args
 from data import get_pretrain_dataloader,get_finetune_dataloader
 from trainer import MAETrainer
+from mas_trainer import MASTrainer
+from lwf_trainer import LWFTrainer
+from gdumb_trainer import GDUMBTrainer
 from logger import Logger
 torch.set_float32_matmul_precision("high")
 
@@ -23,12 +26,18 @@ def main():
     )
 
     model = MAE_ViT(mask_ratio=args.mask_ratio).to("cuda")
-    trainer = MAETrainer(model, args)
+    if args.method == "mas":
+        trainer = MASTrainer(model, args)
+    if args.method == "lwf":
+        trainer = LWFTrainer(model, args)
+    if args.method == "gdumb":
+        trainer = GDUMBTrainer(model, args)
+    else:
+        trainer = MAETrainer(model, args)
 
     for task_id in range(args.num_tasks):
         # Pretrain
         if task_id > 0:
-            trainer.reset_optimizer()
             if args.scheduler != "cosine":
                 trainer.load_annealed_model(task_id=task_id - 1)
         trainer.unfreeze_model()
@@ -40,8 +49,10 @@ def main():
             if epoch % 50 == 0 or epoch == args.total_epoch - 1:
                 trainer.save_model(epoch=epoch,task_id=task_id)
 
-            if args.scheduler != "cosine" and epoch == math.floor(args.total_epoch * args.constant_ratio):
-                trainer.save_annealed_model(task_id=task_id)
+
+        
+        if args.method in ["mas","lwf"]:
+            trainer.after_training_exp(task_id,dataloader)
         
         trainer.freeze_model()
         finetune_dataloader,eval_dataloader = get_finetune_dataloader(task_id, args)
@@ -53,8 +64,14 @@ def main():
         
         trainer.start_evaluation(eval_dataloader,task_id)
         
+        if args.method == "gdumb":
+            trainer.after_finetuning()
 
         trainer.task_id += 1
+        
+        if args.hpo == 1 and task_id == 1:
+            logger.print("HPO mode, exiting after two tasks")
+            break
 
     logger.finish()
     
