@@ -25,6 +25,7 @@ def get_args():
     parser.add_argument("--cooldown_ratio", type=float, default=0.3, help="Cooldown ratio")
     parser.add_argument("--constant_lr_ratio", type=float, default=0.25, help="Constant lr ratio")
     parser.add_argument("--constant_ratio", type=float, default=0.8, help="Constant ratio")
+    parser.add_argument("--method", type=str, default="base", help="Method")
     
     
     return parser.parse_args()
