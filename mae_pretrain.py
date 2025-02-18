@@ -26,11 +26,12 @@ def main():
     )
 
     model = MAE_ViT(mask_ratio=args.mask_ratio).to("cuda")
+
     if args.method == "mas":
         trainer = MASTrainer(model, args)
-    if args.method == "lwf":
+    elif args.method == "lwf":
         trainer = LWFTrainer(model, args)
-    if args.method == "gdumb":
+    elif args.method == "gdumb":
         trainer = GDUMBTrainer(model, args)
     else:
         trainer = MAETrainer(model, args)
