@@ -11,17 +11,17 @@ metric:
 
 parameters:
   base_learning_rate:
-    values: [7.5e-5, 1.5e-4, 3e-4]
+    values: [7.5e-5, 1.5e-4, 3e-4] # 7.5e-5
   min_lr_ratio:
-    values: [0.1, 0.01]
+    values: [0.1, 0.01] # 0.1
   beta1:
-    values: [0.9, 0.95]
+    values: [0.9, 0.95] # 0.9
   beta2:
-    values: [0.95, 0.99]
+    values: [0.95, 0.99] # 0.95
   weight_decay:
-    values: [5e-2, 5e-3]
+    values: [5e-2, 5e-3] # 5e-3
   warmup_epoch:
-    values: [20]
+    values: [20] # 20
   name:
     values: ['cosine_hpo']
   output_dir:
@@ -30,3 +30,5 @@ parameters:
     values: ['cosine']
   hpo:
     values: [1]
+
+
