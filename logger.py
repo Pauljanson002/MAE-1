@@ -62,7 +62,7 @@ class Logger(metaclass=SingletonType):
         if self._experiment_name == "tmp" or "no_wandb" in self._experiment_name:
             wandb_mode = "disabled"
         else:
-            wandb_mode = "online"
+            wandb_mode = "offline"
 
         # Split experiment name into tags
         tags = self._experiment_name.split("-") if self._experiment_name else []
