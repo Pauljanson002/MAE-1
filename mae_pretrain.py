@@ -39,7 +39,7 @@ def main():
     for task_id in range(args.num_tasks):
         # Pretrain
         if task_id > 0:
-            if args.scheduler != "cosine":
+            if args.scheduler != "cosine" and args.method != "gdumb":
                 trainer.load_annealed_model(task_id=task_id - 1)
         trainer.unfreeze_model()
         logger.print(f"Task {task_id}")

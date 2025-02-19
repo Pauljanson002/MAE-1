@@ -11,7 +11,7 @@ class LWFTrainer(MAETrainer):
 
     def __init__(self, model, args):
         super().__init__(model, args)
-        self.alpha = 1.0
+        self.alpha = 0.25
         self.prev_model_encoder = None
 
     def after_training_exp(self,task_id, train_dataloader):

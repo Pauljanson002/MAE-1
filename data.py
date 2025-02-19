@@ -224,10 +224,14 @@ def get_pretrain_dataloader(task_id,args):
     else:
         sampler = data.RandomSampler(pretrain_dataset)
 
-    train_dataloader = torch.utils.data.DataLoader(
-        pretrain_dataset, load_batch_size, sampler=sampler, drop_last=True,
-    )
-
+    if args.method == "gdumb":
+        train_dataloader = torch.utils.data.DataLoader(
+            pretrain_dataset, load_batch_size, sampler=sampler, drop_last=False,
+        )
+    else:
+        train_dataloader = torch.utils.data.DataLoader(
+            pretrain_dataset, load_batch_size, sampler=sampler, drop_last=True,
+        )
 
     return train_dataloader
 

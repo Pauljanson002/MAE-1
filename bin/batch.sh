@@ -5,7 +5,7 @@ method=$3
 seed=$4
 
 
-name=afterhpo_${scheduler}_${reduction_factor}_${method}
+name=oldhps_${scheduler}_${reduction_factor}_${method}
 output_dir=output/${name}
 mkdir -p ${output_dir}
 
@@ -32,12 +32,12 @@ else
         --method=${method} \
         --seed=${seed} \
         --base_learning_rate=1.5e-4 \
-        --min_lr_ratio=0.1 \
-        --beta1=0.95 \
-        --beta2=0.99 \
-        --weight_decay=5e-3 \
+        --min_lr_ratio=0.01 \
+        --beta1=0.9 \
+        --beta2=0.95 \
+        --weight_decay=5e-2 \
         --warmup_ratio=0.05 \
-        --cooldown_ratio=0.5 \
-        --constant_lr_ratio=0.5 \
+        --cooldown_ratio=0.3 \
+        --constant_lr_ratio=0.25 \
         --constant_ratio=0.8 
 fi

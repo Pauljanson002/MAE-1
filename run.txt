@@ -22,6 +22,8 @@ Submitting job: scheduler=cosine, reduction_factor=0.05, method=gdumb seed=42
 bin/batch.sh cosine 0.05 gdumb 42
 Submitting job: scheduler=infinite_cosine, reduction_factor=0.05, method=base seed=42
 bin/batch.sh infinite_cosine 0.05 base 42
+
+
 Submitting job: scheduler=infinite_cosine, reduction_factor=0.05, method=mas seed=42
 bin/batch.sh infinite_cosine 0.05 mas 42
 Submitting job: scheduler=infinite_cosine, reduction_factor=0.05, method=gdumb seed=42
@@ -38,6 +40,8 @@ Submitting job: scheduler=infinite_cosine, reduction_factor=0.1, method=mas seed
 bin/batch.sh infinite_cosine 0.1 mas 42
 Submitting job: scheduler=infinite_cosine, reduction_factor=0.1, method=gdumb seed=42
 bin/batch.sh infinite_cosine 0.1 gdumb 42
+
+
 Submitting job: scheduler=cosine, reduction_factor=0.2, method=base seed=42
 bin/batch.sh cosine 0.2 base 42
 Submitting job: scheduler=cosine, reduction_factor=0.2, method=mas seed=42

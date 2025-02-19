@@ -19,7 +19,7 @@ python mae_pretrain.py \
     --scheduler ${scheduler} \
     --reduction_factor ${reduction_factor} \
     --output_dir ${output_dir} \
-    --method=lwf \
+    --method=mas \
     --total_epoch=5 \
     --finetune_epoch=5 \
     --hpo=1 \

@@ -11,7 +11,7 @@ class MASTrainer(MAETrainer):
     def __init__(self, model, args):
         super().__init__(model, args)
         self.alpha = 0.5
-        self._lambda = 1.0
+        self._lambda = 0.25
 
     def _get_importance(self,dataloader):
         # Get named parameters
