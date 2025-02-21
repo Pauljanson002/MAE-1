@@ -39,7 +39,7 @@ class MASTrainer(MAETrainer):
         losses = []
         step_count = 0
         self.optim.zero_grad()
-        sample_factor = 1 if self.task_id == 0 else 2
+        sample_factor = 1 if self.task_id == 0 or self.args.reduction_factor == 0 else 2
         pbar = tqdm(dataloader, total=len(dataloader) * sample_factor)
 
         for data_iter, (img, _) in enumerate(pbar):
