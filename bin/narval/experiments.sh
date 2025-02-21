@@ -5,7 +5,7 @@ schedulers=("cosine" "infinite_cosine")
 reduction_factors=(0.05 0.1 0.2)
 seed=42
 script=bin/narval/batch.sh
-
+cooldown_ratios=(0.3 0.5 0.7)
 
 
 for reduction_factor in "${reduction_factors[@]}"; do

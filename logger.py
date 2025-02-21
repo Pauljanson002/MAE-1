@@ -66,6 +66,7 @@ class Logger(metaclass=SingletonType):
 
         # Split experiment name into tags
         tags = self._experiment_name.split("-") if self._experiment_name else []
+        tags.append("phase2")
         wandb.init(
             project=project_name,
             name=experiment_name,

@@ -219,7 +219,7 @@ def get_pretrain_dataloader(task_id,args):
     
     pretrain_dataset = get_pretrain_dataset(task_id,args)
     
-    if isinstance(pretrain_dataset,data.ConcatDataset):
+    if isinstance(pretrain_dataset,data.ConcatDataset) and args.method != "gdumb":
         sampler = ContinualSampler(pretrain_dataset)
     else:
         sampler = data.RandomSampler(pretrain_dataset)

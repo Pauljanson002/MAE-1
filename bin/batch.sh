@@ -4,8 +4,8 @@ reduction_factor=$2
 method=$3
 seed=$4
 prefix=$5
-
-name=${prefix}_${scheduler}_${reduction_factor}_${method}_${seed}
+cooldown_ratio=$6
+name=${prefix}_${scheduler}_${reduction_factor}_${method}_${cooldown_ratio}_${seed}
 output_dir=output/${name}
 mkdir -p ${output_dir}
 
@@ -41,5 +41,6 @@ else
         --cooldown_ratio=0.3 \
         --constant_lr_ratio=0.25 \
         --constant_ratio=0.8 \
-        --batch_size=512 
+        --batch_size=512 \
+        --cooldown_ratio=${cooldown_ratio}
 fi
