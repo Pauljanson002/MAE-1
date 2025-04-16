@@ -21,7 +21,7 @@ def get_args():
     parser.add_argument("--num_tasks", type=int, default=5)
     parser.add_argument("--output_dir", type=str, default="output")
     parser.add_argument("--name", type=str, default="tmp")
-    parser.add_argument("--reduction_factor", type=float, default=0.05, help="Reduction factor buffer reduction")
+    parser.add_argument("--reduction_factor", type=float, default=0.5, help="Reduction factor buffer reduction")
     parser.add_argument("--scheduler", type=str, default="cosine", help="Scheduler type")
     parser.add_argument("--warmup_ratio", type=float, default=0.05, help="Warmup ratio")
     parser.add_argument("--cooldown_ratio", type=float, default=0.3, help="Cooldown ratio")
