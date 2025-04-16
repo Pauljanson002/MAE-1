@@ -1,23 +1,25 @@
 #!/bin/bash
 
 # schedulers=("cosine" "infinite_cosine")
-# reduction_factors=(0 0.1 0.2 0.4 0.5)
-schedulers=("infinite_cosine")
-reduction_factors=(0.5)
-cooldown_ratios=(0.4 0.5 0.6 0.7)
-constant_lr_ratios=(0.25 0.5 0.6 0.75)
+# reduction_factors=(0 0.05 0.4 0.5)
+schedulers=("cosine")
+reduction_factors=(0 0.4 0.5)
+cooldown_ratios=(0.4)
+constant_lr_ratios=(0.75)
 seed=0
 script=bin/batch.sh
-prefix="exp"
+prefix="exp-5"
+
+
 
 for reduction_factor in "${reduction_factors[@]}"; do
     if [ $(echo "$reduction_factor == 0" | bc) -eq 1 ]; then
         # When reduction_factor is 0, run all methods including lwf
-        # methods=("base" "mas" "lwf")
-        methods=("base")
+        methods=("base" "mas" "lwf")
+        #methods=("base")
     else
         # When reduction_factor > 0, run base, mas, gdumb
-        methods=("base")
+        methods=("mas")
     fi
     for scheduler in "${schedulers[@]}"; do
         for method in "${methods[@]}"; do

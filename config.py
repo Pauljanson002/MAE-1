@@ -30,5 +30,7 @@ def get_args():
     parser.add_argument("--min_lr_ratio", type=float, default=0.01, help="Min lr ratio")
     parser.add_argument("--method", type=str, default="base", help="Method")
     parser.add_argument("--hpo", type=int, default=0, help="Hyperparameter optimization")
+    parser.add_argument("--alpha", type=float, default=0.1, help="Alpha for distillation loss")
+    parser.add_argument("--lamda", type=float, default=0.1, help="Lambda for importance loss")
     
     return parser.parse_args()

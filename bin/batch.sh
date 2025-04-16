@@ -6,7 +6,9 @@ seed=$4
 prefix=$5
 cooldown_ratio=$6
 constant_lr_ratio=$7
-name=${prefix}_${scheduler}_${reduction_factor}_${method}_${cooldown_ratio}_${constant_lr_ratio}_${seed}
+alpha=$8
+lamda=$9
+name=${prefix}_${scheduler}_${reduction_factor}_${method}_${cooldown_ratio}_${constant_lr_ratio}_${seed}_${alpha}_${lamda}
 output_dir=output/${name}
 mkdir -p ${output_dir}
 
@@ -24,7 +26,9 @@ if [ "$scheduler" = "cosine" ]; then
         --beta1=0.9 \
         --beta2=0.95 \
         --weight_decay=5e-3 \
-        --batch_size=512 
+        --batch_size=512 \
+        --alpha=${alpha} \
+        --lamda=${lamda}
 else
     python mae_pretrain.py \
         --scheduler=${scheduler} \
