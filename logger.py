@@ -63,9 +63,12 @@ class Logger(metaclass=SingletonType):
             wandb_mode = "disabled"
         else:
             wandb_mode = "online"
-            if "narval" in os.environ["HOSTNAME"]:
-                os.environ["WANDB_MODE"] = "offline"
-                wandb_mode = "offline"
+            try:
+                if "narval" in os.environ["HOSTNAME"]:
+                    os.environ["WANDB_MODE"] = "offline"
+                    wandb_mode = "offline"
+            except KeyError:
+                wandb_mode = "online"
 
         # Split experiment name into tags
         tags = self._experiment_name.split("-") if self._experiment_name else []

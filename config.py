@@ -4,7 +4,7 @@ import argparse
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--batch_size", type=int, default=4096)
+    parser.add_argument("--batch_size", type=int, default=512)
     parser.add_argument("--finetune_batch_size", type=int, default=128)
     parser.add_argument("--max_device_batch_size", type=int, default=512)
     parser.add_argument("--base_learning_rate", type=float, default=1.5e-4)
