@@ -10,8 +10,8 @@ class MASTrainer(MAETrainer):
 
     def __init__(self, model, args):
         super().__init__(model, args)
-        self.alpha = 0.5
-        self._lambda = 0.25
+        self.alpha = args.alpha
+        self._lambda = args.lamda
 
     def _get_importance(self,dataloader):
         # Get named parameters
@@ -20,10 +20,9 @@ class MASTrainer(MAETrainer):
             importance[name] = torch.zeros_like(param)
         for img, _ in dataloader:
             self.optim.zero_grad()
-            with torch.amp.autocast("cuda"):
-                features, backward_indexes = self.model.encoder(img)
-                loss = torch.norm(features,p="fro",dim=1).pow(2).mean()
-            self.scaler.scale(loss).backward()
+            features, backward_indexes = self.model.encoder(img)
+            loss = torch.norm(features,p="fro",dim=1).pow(2).mean()
+            loss.backward()
             for name, param in self.model.encoder.named_parameters():
                 if param.requires_grad:
                     if param.grad is not None:
@@ -45,17 +44,15 @@ class MASTrainer(MAETrainer):
         for data_iter, (img, _) in enumerate(pbar):
             step_count += 1
 
-            with torch.amp.autocast("cuda"):
-                predicted_img, mask = self.model(img)
-                loss = (
-                    torch.mean((predicted_img - img) ** 2 * mask) / self.args.mask_ratio
-                )
+            predicted_img, mask = self.model(img)
+            loss = (
+                torch.mean((predicted_img - img) ** 2 * mask) / self.args.mask_ratio
+            )
             self.before_backward(self.task_id,loss)
-            self.scaler.scale(loss).backward()
+            loss.backward()
 
             if step_count % steps_per_update == 0:
-                self.scaler.step(self.optim)
-                self.scaler.update()
+                self.optim.step()
                 self.optim.zero_grad()
 
             losses.append(loss.item())
@@ -119,3 +116,39 @@ class MASTrainer(MAETrainer):
             if name in self.importance.keys():
                 loss_reg += torch.sum(self.importance[name] * (param - self.params_copy[name]) ** 2)
         loss.add_(self._lambda * loss_reg)
+
+    def finetune_epoch(self, dataloader, epoch, steps_per_update):
+        self.finetune_model.train()
+        losses = []
+        step_count = 0
+        self.finetune_optim.zero_grad()
+
+        pbar = tqdm(dataloader, total=len(dataloader))
+        for img, label in pbar:
+            step_count += 1
+            img = img.to(self.device)
+            label = label.to(self.device)
+
+            logits = self.finetune_model(img)
+            loss = self.finetune_loss(logits, label)
+
+            loss.backward()
+
+            if step_count % steps_per_update == 0:
+                self.finetune_optim.step()
+                self.finetune_optim.zero_grad()
+
+            losses.append(loss.item())
+            pbar.set_description(f"Finetune Epoch {epoch}, Loss {loss.item()}")
+
+        self.finetune_lr_scheduler.step()
+        avg_loss = sum(losses) / len(losses)
+        logger.log(
+            {
+                "finetune/loss": avg_loss,
+                "finetune/lr": self.finetune_optim.param_groups[0]["lr"],
+                "finetune/epoch": epoch,
+            }
+        )
+
+        return avg_loss
