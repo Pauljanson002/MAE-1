@@ -1,2 +1,2 @@
 module load python/3.10
-source ./env/bin/activate
+source /home/mila/p/paul.janson/workspace/MAE-1/env/bin/activate

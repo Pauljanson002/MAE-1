@@ -2,7 +2,7 @@ import os
 
 jobs = [
     ("cos_suk_job.sh",2),
-    ("inf_suk_job.sh",1),
+    ("inf_suk_job.sh",2),
     ("cos_long_job.sh",10),
     ("inf_long_job.sh",10)
 ]
